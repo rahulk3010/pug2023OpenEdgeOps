@@ -1,0 +1,25 @@
+name: Development
+run-name: ${{ github.actor }} is compiling our Sample App 🚀
+on: [push]
+jobs:
+  compile:
+    name: OpenEdge Compile Job
+    permissions: write-all
+    runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/Sports
+    steps:
+      - uses: actions/checkout@v3
+      - name: Running Gradle build
+        run: sh gradlew clean build
+      - name: Setup Python - needed by publish step
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Publish ABL Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+          files: ${{ github.workspace }}/Sports/build/test-results/test/*.xml
+          check_name: ABL Unit Test Results for Sports App
